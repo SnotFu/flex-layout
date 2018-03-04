@@ -1,4 +1,5 @@
 import {task} from 'gulp';
+import {existsSync} from 'fs';
 import {execTask} from '../util/task_helpers';
 import {join} from 'path';
 import {buildConfig, sequenceTask} from 'lib-build-tools';
@@ -74,12 +75,15 @@ task('prerender:clear:deps', [], execTask(
   }
 ));
 
-task('prerender:clear:lock', [], execTask(
-  'rm', ['./package-lock.json'], {
-    silent: true,
-    cwd: universalAppSource
-  }
-));
+task('prerender:clear:lock', [], () => existsSync(join(universalAppSource, 'package-lock.json')) ?
+  execTask(
+    'rm', ['package-lock.json'], {
+      failOnStderr: false,
+      silent: true,
+      cwd: universalAppSource
+    }
+  ) : () => {}
+);
 
 task('prerender:clear:dist', [], execTask(
   'rm', ['-rf', 'dist'], {
